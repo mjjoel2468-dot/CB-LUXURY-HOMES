@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CB LUXURY HOMES — Interactive Availability Tracker & Unit Selector</title>
+    <title>CB LUXURY HOMES - Virtual Property Showcase</title>
 
-    <!-- Typography Architecture: Syne (Headings) + Plus Jakarta Sans (Body) -->
+    <!-- Google Fonts: Syne (headings) + Plus Jakarta Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=Plus+Jakarta+Sans:wght=400;500;600&display=swap" rel="stylesheet" />
 
-    <!-- Core CDNs -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js (Global State Engine) -->
+    <!-- Alpine.js -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <script>
-        // ── ENTERPRISE CONFIG — Core System Parameters ──
+        // ── CONFIG — replace these three values before deploying ──────────────
         const EMAILJS_PUBLIC_KEY  = "YOUR_EMAILJS_PUBLIC_KEY";
         const EMAILJS_SERVICE_ID  = "YOUR_EMAILJS_SERVICE_ID";
         const EMAILJS_TEMPLATE_ID = "YOUR_EMAILJS_TEMPLATE_ID";
-        const WHATSAPP_NUMBER     = "256700000000"; // CB Luxury Homes Commercial Desk Line
-        // ────────────────────────────────────────────────
-        
+        const WHATSAPP_NUMBER     = "256700000000";
+        // ─────────────────────────────────────────────────────────────────────
+
         (function() {
             if (EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
                 emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -33,395 +33,386 @@
     </script>
 
     <style>
+        /* Prevents element flickering before Alpine.js boots */
         [x-cloak] { display: none !important; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        h1, h2, h3, h4, .heading { font-family: 'Syne', sans-serif; letter-spacing: -0.02em; }
-        
-        /* Custom Premium Range Track Styling */
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #D4AF37;
-            cursor: pointer;
-            border: 2px solid #070A13;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-            transition: transform 0.1s ease;
+
+        /* ── Global typography ───────────────────────────────────────────── */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
+        h1, h2, h3, h4, .heading {
+            font-family: 'Syne', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        /* ── Hero background image layer ─────────────────────────────────── */
+        .hero-bg-img {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            mix-blend-mode: luminosity;
+            opacity: 0.18;
+        }
+
+        /* ── Status pill pulse dot ───────────────────────────────────────── */
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.35; }
+        }
+        .pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+        /* ── Smooth date input on dark bg ────────────────────────────────── */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
         }
     </style>
 </head>
-<body class="bg-[#070A13] text-[#F1F5F9] antialiased selection:bg-[#D4AF37]/30 selection:text-white"
+
+<body class="bg-[#0A0D0A] text-[#E5EAE5] antialiased"
       x-data="{
-          // State Variables mirroring the Reeno Group high-conversion blueprint
-          unitsRequested: 1,
-          selectedTier: 'premium',
-          activeCurrency: 'USD',
-          
-          // Currency Matrix
-          exchangeRates: {
-              USD: { rate: 1, symbol: '$', suffix: ' USD' },
-              UGX: { rate: 3675, symbol: 'USh ', suffix: ' UGX' },
-              EUR: { rate: 0.92, symbol: '€', suffix: ' EUR' },
-              GBP: { rate: 0.79, symbol: '£', suffix: ' GBP' }
+          currency: 'USD',
+          rates: { USD: 1, UGX: 3750, EUR: 0.92 },
+          symbols: { USD: '$', UGX: 'UGX ', EUR: '€' },
+          filterStatus: 'ALL',
+          selectedUnit: { id: '102', type: '2 Bedroom Suite', priceUSD: 145000, status: 'AVAILABLE', floor: 1, size: '110 SQM' },
+          booking: { date: '', timeSlot: '', name: '', whatsapp: '' },
+          minDate: '',
+          isBooked: false,
+          bookingError: '',
+          bookingLoading: false,
+          units: [
+              { id: '101', type: '1 Bedroom Loft', priceUSD: 85000, status: 'SOLD', floor: 1, size: '65 SQM' },
+              { id: '102', type: '2 Bedroom Suite', priceUSD: 145000, status: 'AVAILABLE', floor: 1, size: '110 SQM' },
+              { id: '103', type: '1 Bedroom Loft', priceUSD: 88000, status: 'AVAILABLE', floor: 1, size: '68 SQM' },
+              { id: '201', type: '2 Bedroom Suite', priceUSD: 150000, status: 'PENDING', floor: 2, size: '115 SQM' },
+              { id: '202', type: '3 Bedroom Penthouse', priceUSD: 280000, status: 'AVAILABLE', floor: 2, size: '210 SQM' },
+              { id: '203', type: '2 Bedroom Suite', priceUSD: 148000, status: 'SOLD', floor: 2, size: '112 SQM' },
+              { id: '301', type: '3 Bedroom Penthouse', priceUSD: 295000, status: 'AVAILABLE', floor: 3, size: '220 SQM' }
+          ],
+          init() {
+              const today = new Date();
+              this.minDate = today.toISOString().split('T')[0];
           },
-
-          // Exact productized pricing blocks for premium tiering
-          tierData: {
-              executive: { name: 'Executive Suite', basePrice: 145000, description: '1-Bedroom Metropolitan Luxury Penthouse.' },
-              premium: { name: 'Premium Residence', basePrice: 285000, description: '3-Bedroom High-End Urban Duplex.' },
-              ultra: { name: 'Ultra Luxury Estate', basePrice: 620000, description: '5-Bedroom Bespoke Architectural Holding.' }
+          formatPrice(usdAmount) {
+              let converted = usdAmount * this.rates[this.currency];
+              return this.symbols[this.currency] + Math.round(converted).toLocaleString();
           },
-
-          // Form Models
-          lead: { name: '', whatsapp: '', email: '', allocationTerm: 'immediate', customDirectives: '' },
-          
-          // Controller States
-          loading: false,
-          isSubmitted: false,
-          errorMessage: '',
-
-          // Core Processing Methods
-          formatConvertedValue(usdAmount) {
-              const current = this.exchangeRates[this.activeCurrency];
-              const value = Math.round(usdAmount * current.rate);
-              return current.symbol + value.toLocaleString() + current.suffix;
-          },
-
-          getUnitPrice() {
-              return this.tierData[this.selectedTier].basePrice;
-          },
-
-          calculateBaseTotal() {
-              return this.getUnitPrice() * this.unitsRequested;
-          },
-
-          calculateCapitalAllocationFee() {
-              // 1.5% Structured Portfolio Maintenance/Legal Transfer Fee
-              return Math.round(this.calculateBaseTotal() * 0.015);
-          },
-
-          calculateGrandTotal() {
-              return this.calculateBaseTotal() + this.calculateCapitalAllocationFee();
-          },
-
-          async submitUnitTracker() {
-              if (!this.lead.name.trim() || !this.lead.whatsapp.trim()) {
-                  this.errorMessage = 'Principal Investor Name and Active WhatsApp Line are mandatory.';
+          async submitBooking() {
+              if (!this.booking.name.trim() || !this.booking.whatsapp.trim()) {
+                  this.bookingError = 'Please fill in your name and WhatsApp number.';
                   return;
               }
-              
-              this.errorMessage = '';
-              this.loading = true;
+              if (!this.booking.date) {
+                  this.bookingError = 'Please select a visit date.';
+                  return;
+              }
+              if (!this.booking.timeSlot) {
+                  this.bookingError = 'Please choose a preferred time window.';
+                  return;
+              }
 
-              const totalStr = this.formatConvertedValue(this.calculateGrandTotal());
-              const unitStr = this.formatConvertedValue(this.getUnitPrice());
-              
+              this.bookingError = '';
+              this.bookingLoading = true;
+
+              const unitLabel = this.selectedUnit
+                  ? 'Unit ' + this.selectedUnit.id + ' — ' + this.selectedUnit.type
+                  : 'No specific unit selected';
+
               const templateParams = {
-                  investor_name: this.lead.name.trim(),
-                  investor_whatsapp: this.lead.whatsapp.trim(),
-                  investor_email: this.lead.email.trim() || 'Not Provided',
-                  tier_profile: this.tierData[this.selectedTier].name,
-                  units_count: this.unitsRequested,
-                  unit_base_price: unitStr,
-                  total_portfolio_value: totalStr,
-                  allocation_term: this.lead.allocationTerm.toUpperCase(),
-                  custom_directives: this.lead.customDirectives.trim() || 'None'
+                  visitor_name:  this.booking.name.trim(),
+                  visitor_wa:    this.booking.whatsapp.trim(),
+                  visit_date:    this.booking.date,
+                  time_slot:     this.booking.timeSlot,
+                  unit_interest: unitLabel,
               };
 
-              // Pipeline 1: EmailJS Enterprise Logging
               try {
                   if (EMAILJS_SERVICE_ID !== 'YOUR_EMAILJS_SERVICE_ID' && EMAILJS_SERVICE_ID !== '') {
                       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
                   } else {
-                      await new Promise(resolve => setTimeout(resolve, 1000)); // Smooth local fallback fallback
+                      await new Promise(r => setTimeout(r, 800));
+                      console.info('[CB Luxury Homes] EmailJS not configured — params:', templateParams);
                   }
               } catch (err) {
-                  console.error('[CB Luxury Homes] Data synchronization failed:', err);
-                  this.errorMessage = 'Routing pipeline error. Please process acquisition directly via WhatsApp connection.';
-                  this.loading = false;
+                  console.error('[CB Luxury Homes] EmailJS error:', err);
+                  this.bookingError = 'Could not send your request. Please try again or contact us directly.';
+                  this.bookingLoading = false;
                   return;
               }
 
-              // Pipeline 2: Instant WhatsApp Commercial Handshake String
-              const waText = [
-                  '🏢 *UNIT ACQUISITION FILE — CB LUXURY HOMES* 🏢',
-                  '──────────────────────────────',
-                  '👤 *Investor Name:* ' + this.lead.name.trim(),
-                  '📱 *WhatsApp Line:* ' + this.lead.whatsapp.trim(),
-                  '✉️ *Email Profile:* ' + (this.lead.email.trim() || 'Not Provided'),
+              const waMessage = [
+                  '👋 Hello, I would like to book a site visit with CB Luxury Homes.',
                   '',
-                  '📊 *Asset Class:* ' + this.tierData[this.selectedTier].name,
-                  '🔢 *Units Selected:* ' + this.unitsRequested + ' Unit(s)',
-                  '⏳ *Allocation Timeline:* ' + this.lead.allocationTerm.toUpperCase(),
-                  '💵 *Bespoke Total Valuation:* ' + totalStr,
-                  '──────────────────────────────',
-                  '💬 *Investor Directives:* ' + (this.lead.customDirectives.trim() || 'Requesting physical site and structural inventory check.')
+                  '📅 *Date:* '    + this.booking.date,
+                  '⏰ *Time:* '    + this.booking.timeSlot,
+                  '🏠 *Unit:* '   + unitLabel,
+                  '👤 *My Name:* ' + this.booking.name.trim(),
               ].join('\n');
 
-              window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waText), '_blank');
+              window.open(
+                  'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waMessage),
+                  '_blank'
+              );
 
-              this.loading = false;
-              this.isSubmitted = true;
+              this.bookingLoading = false;
+              this.isBooked = true;
           }
       }">
 
-    <!-- GLOBAL PRESTIGE HEADER -->
-    <nav class="sticky top-0 z-50 bg-[#070A13]/80 backdrop-blur-xl border-b border-[#1E293B]/60">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-                <div class="h-10 w-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0 text-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
+    <!-- STICKY NAVIGATION BAR -->
+    <nav style="background: rgba(10,13,10,0.80);"
+         class="sticky top-0 z-50 backdrop-blur-md border-b border-[#1A221B]">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+
+            <!-- Logo area -->
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                     style="background: linear-gradient(135deg, #C9A84C 0%, #E5C158 100%);">
+                    <span class="heading text-[#0A0D0A] font-black text-base leading-none">CB</span>
                 </div>
+
                 <div>
-                    <span class="heading text-white font-extrabold text-base tracking-wider block leading-tight">CB LUXURY HOMES</span>
-                    <span class="text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase block leading-none mt-0.5">Asset Management Division</span>
+                    <p class="heading text-white font-extrabold text-sm tracking-widest uppercase leading-tight">
+                        CB LUXURY HOMES
+                    </p>
+                    <p class="text-[#C9A84C] text-[10px] font-medium tracking-widest uppercase leading-tight">
+                        PREMIUM REAL ESTATE
+                    </p>
                 </div>
             </div>
 
-            <!-- Currency Global Conversions Toggles -->
-            <div class="flex items-center gap-1 bg-[#121824] border border-[#1E293B] p-1 rounded-xl">
-                <template x-for="curr in ['USD', 'UGX', 'EUR', 'GBP']">
-                    <button type="button" @click="activeCurrency = curr"
-                            :class="activeCurrency === curr ? 'bg-[#D4AF37] text-[#070A13] font-bold shadow-md' : 'text-slate-400 hover:text-white'"
-                            class="px-3 py-1 rounded-lg text-[10px] uppercase font-mono tracking-wider transition-all duration-200"
-                            x-text="curr">
+            <!-- Status pill -->
+            <div class="flex items-center gap-2 bg-[#121813] border border-[#1A221B] rounded-full px-3.5 py-1.5">
+                <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                <span class="text-[10px] font-semibold text-gray-300 tracking-wider whitespace-nowrap">
+                    Interactive Portal Live
+                </span>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- IMMERSIVE HERO BANNER -->
+    <div class="relative overflow-hidden border-b border-[#1A221B]"
+         style="height: 320px; background: #121813;">
+
+        <div class="hero-bg-img"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#0A0D0A] via-[#0A0D0A]/60 to-transparent"></div>
+
+        <div class="absolute bottom-0 left-0 p-8 md:p-10 max-w-2xl">
+            <div class="inline-flex items-center gap-2 mb-4">
+                <span class="h-px w-5 bg-[#C9A84C]"></span>
+                <span class="text-[#C9A84C] text-[10px] font-semibold tracking-[0.2em] uppercase">
+                    Digital Twin Matrix
+                </span>
+            </div>
+
+            <h1 class="heading text-white font-extrabold text-3xl md:text-4xl leading-tight mb-3">
+                Virtual Architectural Tour
+            </h1>
+
+            <p class="text-gray-400 text-sm leading-relaxed max-w-lg">
+                Click any unit in the matrix layout below to review real-time sizing parameters,
+                live availability states, and connect instantly with our luxury sales concierge team
+                to schedule a private site visit.
+            </p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="min-h-screen max-w-7xl mx-auto px-4 py-8 md:py-12">
+
+        <!-- Currency Converter + section label row -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div>
+                <h2 class="heading text-white font-bold text-lg">Interactive Building Map</h2>
+                <p class="text-xs text-gray-400 mt-0.5">
+                    Filter by status · select a unit · review live pricing
+                </p>
+            </div>
+            
+            <div class="flex items-center gap-2 bg-[#121813] border border-[#1A221B] p-1 rounded-xl flex-shrink-0">
+                <template x-for="cur in Object.keys(rates)">
+                    <button
+                        @click="currency = cur"
+                        :class="currency === cur ? 'bg-[#C9A84C] text-[#0A0D0A]' : 'text-gray-400 hover:text-white'"
+                        class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                        x-text="cur">
                     </button>
                 </template>
             </div>
         </div>
-    </nav>
 
-    <!-- PRODUCTIZED CONVERSION HERO BANNER -->
-    <header class="relative bg-gradient-to-b from-[#101626] to-[#070A13] border-b border-[#1E293B]/40 py-14 md:py-20 overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)]"></div>
-        <div class="relative max-w-4xl mx-auto px-4 text-center">
-            <span class="text-[#D4AF37] text-[10px] font-bold uppercase tracking-[0.35em] bg-[#D4AF37]/10 border border-[#D4AF37]/20 px-3.5 py-1 rounded-full inline-block mb-4">
-                Real-Time Commercial Availability Engine
-            </span>
-            <h1 class="heading text-3xl md:text-5xl font-black text-white leading-tight max-w-3xl mx-auto">
-                Interactive Unit Selector & Allocation Engine
-            </h1>
-            <p class="text-sm text-slate-400 mt-4 max-w-xl mx-auto leading-relaxed">
-                Mitigate structural communication bottlenecks. Configure portfolio unit volumes, select your luxury asset classification tier, and instantly push your direct purchase directives to our commercial desk.
-            </p>
-        </div>
-    </header>
+        <!-- Main Content Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <!-- CORE ALLOCATION ENGINE GRID -->
-    <main class="max-w-6xl mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            
-            <!-- LEFT MODULE: INPUT PARAMETERS (2 COLS) -->
+            <!-- Matrix Map Layout Column -->
             <div class="lg:col-span-2 space-y-6">
-                
-                <!-- Component 1: Unit Inventory Volumetrics Slider -->
-                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                    <div class="flex justify-between items-center mb-5">
+                <div class="bg-[#121813] border border-[#1A221B] rounded-2xl p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                         <div>
-                            <h3 class="heading font-bold text-white text-sm uppercase tracking-wider text-[#D4AF37]">1. Portfolio Unit Block Volume</h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Scale allocation volume to calculate gross property positions.</p>
+                            <p class="text-xs text-gray-400">Select an apartment unit layout below to view details</p>
                         </div>
-                        <span class="text-2xl font-mono font-black text-white bg-[#070A13] border border-[#1E293B] px-4 py-1.5 rounded-xl min-w-[70px] text-center" 
-                              x-text="unitsRequested"></span>
+
+                        <div class="flex flex-wrap gap-1.5">
+                            <template x-for="status in ['ALL', 'AVAILABLE', 'PENDING', 'SOLD']">
+                                <button
+                                    @click="filterStatus = status"
+                                    :class="filterStatus === status ? 'bg-white/10 text-white border border-white/20' : 'text-gray-500 hover:text-gray-300'"
+                                    class="px-3 py-1 rounded-md text-[10px] font-bold tracking-wider transition"
+                                    x-text="status">
+                                </button>
+                            </template>
+                        </div>
                     </div>
-                    
-                    <input type="range" min="1" max="10" x-model="unitsRequested" 
-                           class="w-full bg-[#070A13] h-2 rounded-lg cursor-pointer appearance-none border border-[#1E293B]" />
-                    
-                    <div class="flex justify-between text-[10px] text-slate-500 mt-3 font-mono tracking-wider">
-                        <span>SINGLE UNIT (01)</span>
-                        <span>MID-BLOCK ACQUISITION (05)</span>
-                        <span>PORTFOLIO MAX BLOCK (10)</span>
-                    </div>
-                </div>
 
-                <!-- Component 2: High-Intent Luxury Tier Matrix Grid -->
-                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl">
-                    <div class="mb-5">
-                        <h3 class="heading font-bold text-white text-sm uppercase tracking-wider text-[#D4AF37]">2. Asset Class Specifications</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Select your building layout tier to lock initial base values.</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        
-                        <!-- Executive Tier Card -->
-                        <div @click="selectedTier = 'executive'"
-                             :class="selectedTier === 'executive' ? 'border-[#D4AF37] bg-[#D4AF37]/5 ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13] hover:border-slate-700'"
-                             class="rounded-xl border p-4 text-left transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative group">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Executive Suite</h4>
-                                    <div class="h-3 w-3 rounded-full border border-slate-600 flex items-center justify-center" :class="selectedTier === 'executive' && 'bg-[#D4AF37] border-transparent'">
-                                        <span x-show="selectedTier === 'executive'" class="text-[8px] text-[#070A13] font-bold">✓</span>
-                                    </div>
+                    <!-- Dynamic Building Map Grid Rows -->
+                    <div class="space-y-3">
+                        <template x-for="floorNum in [3, 2, 1]">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-[#0A0D0A]/50 p-3 rounded-xl border border-[#1A221B]/60">
+                                <span class="text-[10px] uppercase font-bold tracking-widest text-[#C9A84C] w-16" x-text="'Floor 0' + floorNum"></span>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 w-full">
+                                    <template x-for="unit in units.filter(u => u.floor === floorNum)">
+                                        <button
+                                            x-show="filterStatus === 'ALL' || filterStatus === unit.status"
+                                            @click="selectedUnit = unit"
+                                            :class="{
+                                                'ring-2 ring-[#C9A84C] border-transparent': selectedUnit && selectedUnit.id === unit.id,
+                                                'border-emerald-500/20 bg-emerald-500/5 text-emerald-400': unit.status === 'AVAILABLE',
+                                                'border-rose-500/20 bg-rose-500/5 text-rose-500 opacity-60': unit.status === 'SOLD',
+                                                'border-amber-500/20 bg-amber-500/5 text-amber-400': unit.status === 'PENDING'
+                                            }"
+                                            class="p-3 rounded-lg border text-left transition-all hover:scale-[1.01]">
+                                            <div class="flex justify-between items-center mb-1 gap-2">
+                                                <span class="font-mono text-xs font-bold text-white" x-text="'Unit ' + unit.id"></span>
+                                                <span class="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded bg-black/40 whitespace-nowrap" x-text="unit.status"></span>
+                                            </div>
+                                            <p class="text-[10px] text-gray-400 break-words" x-text="unit.type"></p>
+                                            <p class="text-xs font-bold mt-2 text-white" x-text="formatPrice(unit.priceUSD)"></p>
+                                        </button>
+                                    </template>
                                 </div>
-                                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed" x-text="tierData.executive.description"></p>
                             </div>
-                            <div class="pt-3 border-t border-[#1E293B] mt-2">
-                                <span class="text-[10px] text-slate-500 block uppercase font-medium">Base Cost per Unit</span>
-                                <span class="text-xs font-mono font-bold text-[#D4AF37]" x-text="formatConvertedValue(tierData.executive.basePrice)"></span>
-                            </div>
-                        </div>
-
-                        <!-- Premium Tier Card -->
-                        <div @click="selectedTier = 'premium'"
-                             :class="selectedTier === 'premium' ? 'border-[#D4AF37] bg-[#D4AF37]/5 ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13] hover:border-slate-700'"
-                             class="rounded-xl border p-4 text-left transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative group">
-                            <span class="absolute -top-2 right-3 bg-[#D4AF37] text-[#070A13] text-[8px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase">High Demand</span>
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Premium Residence</h4>
-                                    <div class="h-3 w-3 rounded-full border border-slate-600 flex items-center justify-center" :class="selectedTier === 'premium' && 'bg-[#D4AF37] border-transparent'">
-                                        <span x-show="selectedTier === 'premium'" class="text-[8px] text-[#070A13] font-bold">✓</span>
-                                    </div>
-                                </div>
-                                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed" x-text="tierData.premium.description"></p>
-                            </div>
-                            <div class="pt-3 border-t border-[#1E293B] mt-2">
-                                <span class="text-[10px] text-slate-500 block uppercase font-medium">Base Cost per Unit</span>
-                                <span class="text-xs font-mono font-bold text-[#D4AF37]" x-text="formatConvertedValue(tierData.premium.basePrice)"></span>
-                            </div>
-                        </div>
-
-                        <!-- Ultra Luxury Tier Card -->
-                        <div @click="selectedTier = 'ultra'"
-                             :class="selectedTier === 'ultra' ? 'border-[#D4AF37] bg-[#D4AF37]/5 ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13] hover:border-slate-700'"
-                             class="rounded-xl border p-4 text-left transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative group">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Ultra Luxury</h4>
-                                    <div class="h-3 w-3 rounded-full border border-slate-600 flex items-center justify-center" :class="selectedTier === 'ultra' && 'bg-[#D4AF37] border-transparent'">
-                                        <span x-show="selectedTier === 'ultra'" class="text-[8px] text-[#070A13] font-bold">✓</span>
-                                    </div>
-                                </div>
-                                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed" x-text="tierData.ultra.description"></p>
-                            </div>
-                            <div class="pt-3 border-t border-[#1E293B] mt-2">
-                                <span class="text-[10px] text-slate-500 block uppercase font-medium">Base Cost per Unit</span>
-                                <span class="text-xs font-mono font-bold text-[#D4AF37]" x-text="formatConvertedValue(tierData.ultra.basePrice)"></span>
-                            </div>
-                        </div>
-
+                        </template>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT MODULE: DETAILED BREAKDOWN & HIGH-INTENT CONVERSION CARD (1 COL) -->
+            <!-- Interactivity Sidebar -->
             <div class="space-y-6">
-                
-                <!-- Component 3: Live Valuation Statement Ledger -->
-                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-[#D4AF37]/10 text-[#D4AF37] text-[8px] tracking-widest uppercase font-bold px-3 py-1 rounded-bl-lg font-mono">
-                        Ledger Spec
+
+                <!-- Unit Parameters Details -->
+                <div class="bg-[#121813] border border-[#1A221B] rounded-2xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-[#C9A84C]/10 text-[#C9A84C] text-[9px] tracking-widest uppercase font-bold px-3 py-1 rounded-bl-lg">
+                        Live Specifications
                     </div>
-                    <h3 class="heading text-white font-bold text-base mb-1">Acquisition Statement</h3>
-                    <p class="text-[11px] text-slate-400 mb-4">Calculated allocation gross pricing summary.</p>
-                    
-                    <div class="border-t border-[#1E293B]/60 pt-4 space-y-2.5 text-xs">
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-400">Class Selected:</span>
-                            <span class="text-white uppercase font-mono font-semibold" x-text="selectedTier"></span>
+
+                    <h3 class="heading text-white font-bold text-base mb-4">Unit Matrix Details</h3>
+                    <div x-show="selectedUnit" class="space-y-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Residence Configuration</p>
+                            <p class="heading text-lg font-bold text-white mt-0.5" x-text="selectedUnit.type"></p>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-400">Volume Multiplexer:</span>
-                            <span class="text-white font-mono" x-text="unitsRequested + (unitsRequested === 1 ? ' Selected Unit' : ' Units Block')"></span>
+                        <div class="grid grid-cols-2 gap-4 border-y border-[#1A221B] py-3 my-2">
+                            <div>
+                                <p class="text-[10px] text-gray-500">Floor Layout</p>
+                                <p class="text-sm font-semibold text-white" x-text="'Level 0' + selectedUnit.floor"></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-gray-500">Total Built Area</p>
+                                <p class="text-sm font-semibold text-white" x-text="selectedUnit.size"></p>
+                            </div>
                         </div>
-                        
-                        <div class="flex justify-between items-center border-t border-[#1E293B]/30 pt-2.5">
-                            <span class="text-slate-400">Aggregated Net Value:</span>
-                            <span class="text-white font-mono font-medium" x-text="formatConvertedValue(calculateBaseTotal())"></span>
+                        <div>
+                            <p class="text-xs text-gray-400">Indicative Investment Base</p>
+                            <p class="heading text-2xl font-black text-[#C9A84C] mt-1" x-text="formatPrice(selectedUnit.priceUSD)"></p>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-400">Portfolio Legal Transfer (1.5%):</span>
-                            <span class="text-slate-400 font-mono text-[11px]" x-text="formatConvertedValue(calculateCapitalAllocationFee())"></span>
-                        </div>
-                        
-                        <div class="border-t border-[#1E293B]/60 pt-3 flex justify-between items-baseline mt-4">
-                            <span class="text-xs text-white font-bold">Total Allocation Valuation:</span>
-                            <span class="text-2xl font-black text-[#D4AF37] font-mono tracking-tight" x-text="formatConvertedValue(calculateGrandTotal())"></span>
-                        </div>
+                    </div>
+                    <div x-show="!selectedUnit" x-cloak>
+                        <p class="text-xs text-gray-400">Select an apartment unit layout from the map matrix to review parameters.</p>
                     </div>
                 </div>
 
-                <!-- Component 4: Commercial Lead Capture Ingestion -->
-                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl">
-                    <h3 class="heading text-white font-bold text-sm uppercase tracking-wider mb-4">Secure Unit Allocation</h3>
-                    
-                    <form x-show="!isSubmitted" @submit.prevent="submitUnitTracker()" class="space-y-3.5">
+                <!-- Calendar Visit Booking Form -->
+                <div class="bg-[#121813] border border-[#1A221B] rounded-2xl p-6">
+                    <h3 class="heading text-white font-bold text-base mb-2">Schedule Private Site Tour</h3>
+                    <p class="text-xs text-gray-400 mb-4">Select an available date below to arrange a physical or virtual viewing.</p>
+
+                    <form x-show="!isBooked" @submit.prevent="submitBooking()" class="space-y-3">
                         <div>
-                            <label for="investor_name" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Principal Investor Name</label>
-                            <input type="text" id="investor_name" required x-model="lead.name" placeholder="E.g., Dr. Mukasa"
-                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] transition duration-200" />
+                            <label for="visit_date" class="block text-[10px] font-bold tracking-wider uppercase text-gray-400 mb-1">Target Date</label>
+                            <input type="date" id="visit_date" name="visit_date" required x-model="booking.date" :min="minDate"
+                                   class="w-full bg-[#0A0D0A] border border-[#1A221B] rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-[#C9A84C]" />
                         </div>
 
                         <div>
-                            <label for="investor_whatsapp" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active WhatsApp Line</label>
-                            <input type="tel" id="investor_whatsapp" required x-model="lead.whatsapp" placeholder="E.g., +256 700 000000"
-                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] transition duration-200" />
+                            <label class="block text-[10px] font-bold tracking-wider uppercase text-gray-400 mb-1">Preferred Time Window</label>
+                            <div class="grid grid-cols-3 gap-1.5">
+                                <template x-for="slot in ['Morning', 'Midday', 'Evening']">
+                                    <button type="button" @click="booking.timeSlot = slot"
+                                        :class="booking.timeSlot === slot ? 'bg-[#C9A84C] text-[#0A0D0A] border-transparent' : 'bg-[#0A0D0A] border-[#1A221B] text-gray-400'"
+                                        class="py-2 rounded-md text-[11px] font-medium border transition" x-text="slot">
+                                    </button>
+                                </template>
+                            </div>
                         </div>
 
                         <div>
-                            <label for="investor_email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Secure Email Profile (Optional)</label>
-                            <input type="email" id="investor_email" x-model="lead.email" placeholder="investor@domain.com"
-                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] transition duration-200" />
+                            <label for="visitor_name" class="block text-[10px] font-bold tracking-wider uppercase text-gray-400 mb-1">Full Name</label>
+                            <input type="text" id="visitor_name" name="visitor_name" placeholder="John Doe" required x-model="booking.name"
+                                   class="w-full bg-[#0A0D0A] border border-[#1A221B] rounded-lg p-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#C9A84C]" />
                         </div>
 
                         <div>
-                            <label for="allocation_term" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Capital Deployment Schedule</label>
-                            <select id="allocation_term" x-model="lead.allocationTerm"
-                                    class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#D4AF37] cursor-pointer transition duration-200">
-                                <option value="immediate">Immediate Close (Within 14 Days)</option>
-                                <option value="quarter">Q1/Q2 Portfolio Capital Call</option>
-                                <option value="speculative">Financing / Payment Plan Structuring</option>
-                            </select>
+                            <label for="visitor_whatsapp" class="block text-[10px] font-bold tracking-wider uppercase text-gray-400 mb-1">WhatsApp Line</label>
+                            <input type="tel" id="visitor_whatsapp" name="visitor_whatsapp" placeholder="+256 700 000000" required x-model="booking.whatsapp"
+                                   class="w-full bg-[#0A0D0A] border border-[#1A221B] rounded-lg p-2.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#C9A84C]" />
                         </div>
 
-                        <div>
-                            <label for="custom_directives" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bespoke Structural Directives (Optional)</label>
-                            <textarea id="custom_directives" x-model="lead.customDirectives" rows="2" placeholder="Entity structural requests, custom layout customizations..."
-                                      class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] resize-none transition duration-200"></textarea>
-                        </div>
+                        <!-- Inline error message -->
+                        <p x-show="bookingError" x-cloak
+                           x-text="bookingError"
+                           class="text-[11px] text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2">
+                        </p>
 
-                        <!-- System Error Boundary -->
-                        <p x-show="errorMessage" x-cloak x-text="errorMessage" class="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5 font-medium"></p>
-
-                        <!-- High-Intent Direct CTA Button -->
-                        <button type="submit" :disabled="loading"
-                                class="w-full bg-[#D4AF37] hover:bg-[#BFA32B] disabled:opacity-50 text-[#070A13] font-bold py-3.5 rounded-xl tracking-widest text-[10px] uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:shadow-[0_4px_25px_rgba(212,175,55,0.25)]">
-                            <span x-show="!loading">Lock Dynamic Specs & Request Inventory File</span>
-                            <span x-show="loading" class="flex items-center gap-2" x-cloak>
-                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <button type="submit"
+                                :disabled="bookingLoading"
+                                :class="bookingLoading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#b0923d]'"
+                                class="w-full bg-[#C9A84C] text-[#0A0D0A] font-bold py-3 rounded-xl uppercase tracking-widest text-[10px] transition-colors mt-2 flex items-center justify-center gap-2">
+                            <span x-show="!bookingLoading">Confirm Appointment</span>
+                            <span x-show="bookingLoading" class="flex items-center gap-2" x-cloak>
+                                <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                                 </svg>
-                                Syncing Commercial Ledger...
+                                Sending…
                             </span>
                         </button>
                     </form>
 
-                    <!-- Verification Success State Card Screen Overlay -->
-                    <div x-show="isSubmitted" class="text-center py-8" x-cloak>
-                        <div class="h-12 w-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(16,185,129,0.1)]">✓</div>
-                        <h4 class="heading text-white font-bold text-sm uppercase tracking-wide">Acquisition Parameters Synced</h4>
-                        <p class="text-xs text-slate-400 mt-2 px-1 leading-relaxed">
-                            Your allocation specifications have been securely parsed. The CB Luxury Homes desk has been notified to generate your custom property inventory documentation package.
+                    <!-- Success State Notice -->
+                    <div x-show="isBooked" class="text-center py-6 bg-[#0A0D0A]/40 border border-emerald-500/20 rounded-xl p-4" x-cloak>
+                        <div class="text-emerald-400 text-2xl mb-2">✓</div>
+                        <h4 class="heading text-white font-bold text-sm">Site Visit Requested</h4>
+                        <p class="text-xs text-gray-400 mt-1">
+                            Thank you <span class="text-white font-bold" x-text="booking.name"></span>.
+                            Your session on <span class="text-white font-bold" x-text="booking.date"></span>
+                            has been compiled. Concierge tracking will initiate on WhatsApp at
+                            <span class="text-white font-bold" x-text="booking.whatsapp"></span>.
                         </p>
-                        <button @click="isSubmitted = false; lead = { name: '', whatsapp: '', email: '', allocationTerm: 'immediate', customDirectives: '' }; unitsRequested = 1;"
-                                class="mt-5 text-[10px] uppercase font-bold tracking-widest text-[#D4AF37] hover:text-white transition duration-200">
-                            Re-Calculate New Asset Parameters
+                        <button @click="isBooked = false; booking = { date: '', timeSlot: '', name: '', whatsapp: '' }; bookingError = '';"
+                                class="mt-4 text-[10px] uppercase tracking-widest text-[#C9A84C] hover:text-white transition-colors">
+                            Book another visit
                         </button>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
-    </main>
+    </div>
+
 </body>
 </html>
