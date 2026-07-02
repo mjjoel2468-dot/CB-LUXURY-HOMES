@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CB LUXURY HOMES - Real Estate Unit Availability Tracker</title>
+    <title>CB LUXURY HOMES — Interactive Availability Tracker & Unit Selector</title>
 
-    <!-- Google Fonts: Syne (Headings) + Plus Jakarta Sans (Body) -->
+    <!-- Typography Architecture: Syne (Headings) + Plus Jakarta Sans (Body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=Plus+Jakarta+Sans:wght=400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght=700;800&family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Tailwind CSS -->
+    <!-- Core CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js -->
+    <!-- Alpine.js (Global State Engine) -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
     <script>
-        // ── CONFIG — Replace these values before deploying to Cloudflare ────
+        // ── ENTERPRISE CONFIG — Core System Parameters ──
         const EMAILJS_PUBLIC_KEY  = "YOUR_EMAILJS_PUBLIC_KEY";
         const EMAILJS_SERVICE_ID  = "YOUR_EMAILJS_SERVICE_ID";
         const EMAILJS_TEMPLATE_ID = "YOUR_EMAILJS_TEMPLATE_ID";
-        const WHATSAPP_NUMBER     = "256700000000"; // Replace with CB Luxury Homes sales desk line
-        // ─────────────────────────────────────────────────────────────────────
-
+        const WHATSAPP_NUMBER     = "256700000000"; // CB Luxury Homes Commercial Desk Line
+        // ────────────────────────────────────────────────
+        
         (function() {
             if (EMAILJS_PUBLIC_KEY !== "YOUR_EMAILJS_PUBLIC_KEY") {
                 emailjs.init(EMAILJS_PUBLIC_KEY);
@@ -35,30 +35,34 @@
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        h1, h2, h3, h4, .heading { font-family: 'Syne', sans-serif; letter-spacing: -0.01em; }
+        h1, h2, h3, h4, .heading { font-family: 'Syne', sans-serif; letter-spacing: -0.02em; }
         
-        .property-overlay {
-            position: absolute;
-            inset: 0;
-            background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80');
-            background-size: cover;
-            background-position: center;
-            mix-blend-mode: luminosity;
-            opacity: 0.12;
+        /* Custom Premium Range Track Styling */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #D4AF37;
+            cursor: pointer;
+            border: 2px solid #070A13;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+            transition: transform 0.1s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
         }
     </style>
 </head>
-<body class="bg-[#070A13] text-[#E2E8F0] antialiased"
+<body class="bg-[#070A13] text-[#F1F5F9] antialiased selection:bg-[#D4AF37]/30 selection:text-white"
       x-data="{
-          selectedUnits: 1,
-          tier: 'premium',
+          // State Variables mirroring the Reeno Group high-conversion blueprint
+          unitsRequested: 1,
+          selectedTier: 'premium',
           activeCurrency: 'USD',
-          lead: { name: '', email: '', whatsapp: '', notes: '' },
-          isSubmitted: false,
-          loading: false,
-          errorMessage: '',
           
-          // Currency Conversion System (Base: USD)
+          // Currency Matrix
           exchangeRates: {
               USD: { rate: 1, symbol: '$', suffix: ' USD' },
               UGX: { rate: 3675, symbol: 'USh ', suffix: ' UGX' },
@@ -66,30 +70,48 @@
               GBP: { rate: 0.79, symbol: '£', suffix: ' GBP' }
           },
 
-          // Unit Package Base Rates (USD values)
-          baseRates: { executive: 1200, premium: 2400, ultra: 4800 },
+          // Exact productized pricing blocks for premium tiering
+          tierData: {
+              executive: { name: 'Executive Suite', basePrice: 145000, description: '1-Bedroom Metropolitan Luxury Penthouse.' },
+              premium: { name: 'Premium Residence', basePrice: 285000, description: '3-Bedroom High-End Urban Duplex.' },
+              ultra: { name: 'Ultra Luxury Estate', basePrice: 620000, description: '5-Bedroom Bespoke Architectural Holding.' }
+          },
 
+          // Form Models
+          lead: { name: '', whatsapp: '', email: '', allocationTerm: 'immediate', customDirectives: '' },
+          
+          // Controller States
+          loading: false,
+          isSubmitted: false,
+          errorMessage: '',
+
+          // Core Processing Methods
           formatConvertedValue(usdAmount) {
               const current = this.exchangeRates[this.activeCurrency];
-              const convertedValue = Math.round(usdAmount * current.rate);
-              return current.symbol + convertedValue.toLocaleString() + current.suffix;
+              const value = Math.round(usdAmount * current.rate);
+              return current.symbol + value.toLocaleString() + current.suffix;
+          },
+
+          getUnitPrice() {
+              return this.tierData[this.selectedTier].basePrice;
           },
 
           calculateBaseTotal() {
-              return this.baseRates[this.tier] * this.selectedUnits;
+              return this.getUnitPrice() * this.unitsRequested;
           },
 
-          calculateTaxes() {
-              return Math.round(this.calculateBaseTotal() * 0.05);
+          calculateCapitalAllocationFee() {
+              // 1.5% Structured Portfolio Maintenance/Legal Transfer Fee
+              return Math.round(this.calculateBaseTotal() * 0.015);
           },
 
           calculateGrandTotal() {
-              return this.calculateBaseTotal() + this.calculateTaxes();
+              return this.calculateBaseTotal() + this.calculateCapitalAllocationFee();
           },
 
-          async handlePropertySubmit() {
+          async submitUnitTracker() {
               if (!this.lead.name.trim() || !this.lead.whatsapp.trim()) {
-                  this.errorMessage = 'Name and WhatsApp phone number are required fields.';
+                  this.errorMessage = 'Principal Investor Name and Active WhatsApp Line are mandatory.';
                   return;
               }
               
@@ -97,44 +119,48 @@
               this.loading = true;
 
               const totalStr = this.formatConvertedValue(this.calculateGrandTotal());
-              const baseStr = this.formatConvertedValue(this.calculateBaseTotal());
+              const unitStr = this.formatConvertedValue(this.getUnitPrice());
               
               const templateParams = {
-                  client_name: this.lead.name.trim(),
-                  client_email: this.lead.email.trim() || 'Not provided',
-                  client_phone: this.lead.whatsapp.trim(),
-                  unit_count: this.selectedUnits,
-                  tier_selected: this.tier.toUpperCase(),
-                  base_cost: baseStr,
-                  total_estimate: totalStr,
-                  custom_notes: this.lead.notes.trim() || 'None'
+                  investor_name: this.lead.name.trim(),
+                  investor_whatsapp: this.lead.whatsapp.trim(),
+                  investor_email: this.lead.email.trim() || 'Not Provided',
+                  tier_profile: this.tierData[this.selectedTier].name,
+                  units_count: this.unitsRequested,
+                  unit_base_price: unitStr,
+                  total_portfolio_value: totalStr,
+                  allocation_term: this.lead.allocationTerm.toUpperCase(),
+                  custom_directives: this.lead.customDirectives.trim() || 'None'
               };
 
-              // 1. EmailJS Data Route
+              // Pipeline 1: EmailJS Enterprise Logging
               try {
                   if (EMAILJS_SERVICE_ID !== 'YOUR_EMAILJS_SERVICE_ID' && EMAILJS_SERVICE_ID !== '') {
                       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
                   } else {
-                      await new Promise(r => setTimeout(r, 800));
+                      await new Promise(resolve => setTimeout(resolve, 1000)); // Smooth local fallback fallback
                   }
               } catch (err) {
-                  console.error('[CB Luxury Homes] Lead allocation failed:', err);
-                  this.errorMessage = 'Routing execution failed. Please verify configurations or fallback to WhatsApp.';
+                  console.error('[CB Luxury Homes] Data synchronization failed:', err);
+                  this.errorMessage = 'Routing pipeline error. Please process acquisition directly via WhatsApp connection.';
                   this.loading = false;
                   return;
               }
 
-              // 2. WhatsApp Direct Link String Generator
+              // Pipeline 2: Instant WhatsApp Commercial Handshake String
               const waText = [
-                  '🏢 *New Property Acquisition File - CB LUXURY HOMES* 🔑',
-                  '',
+                  '🏢 *UNIT ACQUISITION FILE — CB LUXURY HOMES* 🏢',
+                  '──────────────────────────────',
                   '👤 *Investor Name:* ' + this.lead.name.trim(),
                   '📱 *WhatsApp Line:* ' + this.lead.whatsapp.trim(),
-                  '📊 *Allocation Profile:* ' + this.tier.toUpperCase(),
-                  '🔢 *Units Targeted:* ' + this.selectedUnits,
-                  '💰 *Estimated Gross Pipeline:* ' + totalStr,
+                  '✉️ *Email Profile:* ' + (this.lead.email.trim() || 'Not Provided'),
                   '',
-                  '💬 *Investor Notes:* ' + (this.lead.notes.trim() || 'Requesting portfolio availability statement.')
+                  '📊 *Asset Class:* ' + this.tierData[this.selectedTier].name,
+                  '🔢 *Units Selected:* ' + this.unitsRequested + ' Unit(s)',
+                  '⏳ *Allocation Timeline:* ' + this.lead.allocationTerm.toUpperCase(),
+                  '💵 *Bespoke Total Valuation:* ' + totalStr,
+                  '──────────────────────────────',
+                  '💬 *Investor Directives:* ' + (this.lead.customDirectives.trim() || 'Requesting physical site and structural inventory check.')
               ].join('\n');
 
               window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waText), '_blank');
@@ -144,27 +170,27 @@
           }
       }">
 
-    <!-- NAVIGATION BAR -->
-    <nav class="sticky top-0 z-50 bg-[#070A13]/90 backdrop-blur-md border-b border-[#1E293B]">
+    <!-- GLOBAL PRESTIGE HEADER -->
+    <nav class="sticky top-0 z-50 bg-[#070A13]/80 backdrop-blur-xl border-b border-[#1E293B]/60">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0 text-[#D4AF37]">
+            <div class="flex items-center gap-3.5">
+                <div class="h-10 w-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0 text-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.1)]">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
                 <div>
                     <span class="heading text-white font-extrabold text-base tracking-wider block leading-tight">CB LUXURY HOMES</span>
-                    <span class="text-[#D4AF37] text-[9px] font-semibold tracking-[0.25em] uppercase block leading-none">Portfolio Tracker</span>
+                    <span class="text-[#D4AF37] text-[9px] font-bold tracking-[0.3em] uppercase block leading-none mt-0.5">Asset Management Division</span>
                 </div>
             </div>
 
-            <!-- Global Currency Conversion Selector -->
-            <div class="flex items-center gap-1 bg-[#141B2D] border border-[#1E293B] p-1 rounded-xl">
+            <!-- Currency Global Conversions Toggles -->
+            <div class="flex items-center gap-1 bg-[#121824] border border-[#1E293B] p-1 rounded-xl">
                 <template x-for="curr in ['USD', 'UGX', 'EUR', 'GBP']">
                     <button type="button" @click="activeCurrency = curr"
-                            :class="activeCurrency === curr ? 'bg-[#D4AF37] text-[#070A13] font-bold' : 'text-slate-400 hover:text-white'"
-                            class="px-2.5 py-1 rounded-lg text-[10px] uppercase font-mono tracking-wider transition-all"
+                            :class="activeCurrency === curr ? 'bg-[#D4AF37] text-[#070A13] font-bold shadow-md' : 'text-slate-400 hover:text-white'"
+                            class="px-3 py-1 rounded-lg text-[10px] uppercase font-mono tracking-wider transition-all duration-200"
                             x-text="curr">
                     </button>
                 </template>
@@ -172,193 +198,224 @@
         </div>
     </nav>
 
-    <!-- BANNER HERO ARCHITECTURE -->
-    <div class="relative bg-[#141B2D] overflow-hidden border-b border-[#1E293B] py-12 md:py-16">
-        <div class="property-overlay"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-[#070A13] via-[#070A13]/40 to-transparent"></div>
-        
-        <div class="relative max-w-6xl mx-auto px-4 text-center">
-            <span class="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.3em] bg-[#D4AF37]/10 border border-[#D4AF37]/20 px-3 py-1 rounded-full">Unit Availability Matrix</span>
-            <h1 class="heading text-3xl md:text-5xl font-black text-white mt-4 max-w-3xl mx-auto leading-tight">
-                Evaluate Real Estate Unit Block Allocation
+    <!-- PRODUCTIZED CONVERSION HERO BANNER -->
+    <header class="relative bg-gradient-to-b from-[#101626] to-[#070A13] border-b border-[#1E293B]/40 py-14 md:py-20 overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)]"></div>
+        <div class="relative max-w-4xl mx-auto px-4 text-center">
+            <span class="text-[#D4AF37] text-[10px] font-bold uppercase tracking-[0.35em] bg-[#D4AF37]/10 border border-[#D4AF37]/20 px-3.5 py-1 rounded-full inline-block mb-4">
+                Real-Time Commercial Availability Engine
+            </span>
+            <h1 class="heading text-3xl md:text-5xl font-black text-white leading-tight max-w-3xl mx-auto">
+                Interactive Unit Selector & Allocation Engine
             </h1>
-            <p class="text-sm text-slate-400 mt-3 max-w-xl mx-auto leading-relaxed">
-                Calculate ongoing portfolio positions and secure multi-unit subscription options. Finalized specs parse clean string outputs down to our commercial asset management division.
+            <p class="text-sm text-slate-400 mt-4 max-w-xl mx-auto leading-relaxed">
+                Mitigate structural communication bottlenecks. Configure portfolio unit volumes, select your luxury asset classification tier, and instantly push your direct purchase directives to our commercial desk.
             </p>
         </div>
-    </div>
+    </header>
 
-    <!-- MAIN INTERACTIVE ENGINE -->
-    <main class="max-w-6xl mx-auto px-4 py-10">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- CORE ALLOCATION ENGINE GRID -->
+    <main class="max-w-6xl mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
-            <!-- CONTROLS & SPECIFICATION ENGINE -->
+            <!-- LEFT MODULE: INPUT PARAMETERS (2 COLS) -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Step 1: Unit Inventory Volumetrics -->
-                <div class="bg-[#141B2D] border border-[#1E293B] rounded-2xl p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="heading font-bold text-slate-300 text-sm uppercase tracking-wider">1. Select Portfolio Unit Volume</h3>
-                        <span class="text-xl font-mono font-bold text-[#D4AF37]" x-text="selectedUnits + ' ' + (selectedUnits === 1 ? 'Unit' : 'Units')"></span>
+                
+                <!-- Component 1: Unit Inventory Volumetrics Slider -->
+                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-5">
+                        <div>
+                            <h3 class="heading font-bold text-white text-sm uppercase tracking-wider text-[#D4AF37]">1. Portfolio Unit Block Volume</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Scale allocation volume to calculate gross property positions.</p>
+                        </div>
+                        <span class="text-2xl font-mono font-black text-white bg-[#070A13] border border-[#1E293B] px-4 py-1.5 rounded-xl min-w-[70px] text-center" 
+                              x-text="unitsRequested"></span>
                     </div>
-                    <input type="range" min="1" max="12" x-model="selectedUnits" 
-                           class="w-full accent-[#D4AF37] bg-[#070A13] h-2 rounded-lg cursor-pointer" />
-                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
-                        <span>1 ASSET UNIT</span>
-                        <span>6 UNITS BLOCK</span>
-                        <span>12 ASSETS MAX</span>
+                    
+                    <input type="range" min="1" max="10" x-model="unitsRequested" 
+                           class="w-full bg-[#070A13] h-2 rounded-lg cursor-pointer appearance-none border border-[#1E293B]" />
+                    
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-3 font-mono tracking-wider">
+                        <span>SINGLE UNIT (01)</span>
+                        <span>MID-BLOCK ACQUISITION (05)</span>
+                        <span>PORTFOLIO MAX BLOCK (10)</span>
                     </div>
                 </div>
 
-                <!-- Step 2: Tier Matrix Configurator with Visual Render Cards -->
-                <div class="bg-[#141B2D] border border-[#1E293B] rounded-2xl p-6">
-                    <h3 class="heading font-bold text-slate-300 text-sm uppercase tracking-wider mb-4">2. Asset Class Tier Matrix</h3>
+                <!-- Component 2: High-Intent Luxury Tier Matrix Grid -->
+                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl">
+                    <div class="mb-5">
+                        <h3 class="heading font-bold text-white text-sm uppercase tracking-wider text-[#D4AF37]">2. Asset Class Specifications</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Select your building layout tier to lock initial base values.</p>
+                    </div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         
                         <!-- Executive Tier Card -->
-                        <button type="button" @click="tier = 'executive'"
-                                :class="tier === 'executive' ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13]'"
-                                class="rounded-xl border overflow-hidden text-left transition-all relative group flex flex-col justify-between h-64">
-                            <div class="relative h-28 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="Executive Asset Class" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition duration-500"/>
-                                <span class="absolute top-2 right-2 text-[9px] bg-[#070A13]/80 text-slate-300 font-mono px-1.5 py-0.5 rounded">Class A</span>
-                            </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#070A13]">
-                                <div>
-                                    <h4 class="text-xs font-bold text-white uppercase tracking-wide">Executive Tier</h4>
-                                    <p class="text-[10px] text-slate-400 mt-1 leading-snug">Metropolitan spaces engineered for premium recurring cashflow yields.</p>
+                        <div @click="selectedTier = 'executive'"
+                             :class="selectedTier === 'executive' ? 'border-[#D4AF37] bg-[#D4AF37]/5 ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13] hover:border-slate-700'"
+                             class="rounded-xl border p-4 text-left transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative group">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Executive Suite</h4>
+                                    <div class="h-3 w-3 rounded-full border border-slate-600 flex items-center justify-center" :class="selectedTier === 'executive' && 'bg-[#D4AF37] border-transparent'">
+                                        <span x-show="selectedTier === 'executive'" class="text-[8px] text-[#070A13] font-bold">✓</span>
+                                    </div>
                                 </div>
-                                <div class="pt-2 border-t border-[#1E293B] mt-2">
-                                    <span class="text-[11px] font-mono text-[#D4AF37] font-semibold" x-text="formatConvertedValue(1200) + ' / mo'"></span>
-                                </div>
+                                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed" x-text="tierData.executive.description"></p>
                             </div>
-                        </button>
+                            <div class="pt-3 border-t border-[#1E293B] mt-2">
+                                <span class="text-[10px] text-slate-500 block uppercase font-medium">Base Cost per Unit</span>
+                                <span class="text-xs font-mono font-bold text-[#D4AF37]" x-text="formatConvertedValue(tierData.executive.basePrice)"></span>
+                            </div>
+                        </div>
 
                         <!-- Premium Tier Card -->
-                        <button type="button" @click="tier = 'premium'"
-                                :class="tier === 'premium' ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13]'"
-                                class="rounded-xl border overflow-hidden text-left transition-all relative group flex flex-col justify-between h-64">
-                            <div class="relative h-28 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Premium Asset Class" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition duration-500"/>
-                                <span class="absolute top-2 right-2 text-[9px] bg-[#D4AF37]/20 text-[#D4AF37] font-mono px-1.5 py-0.5 rounded font-bold">Most Selected</span>
-                            </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#070A13]">
-                                <div>
-                                    <h4 class="text-xs font-bold text-white uppercase tracking-wide">Premium Residence</h4>
-                                    <p class="text-[10px] text-slate-400 mt-1 leading-snug">Exclusive suburban estates built with custom high-end masonry specifications.</p>
+                        <div @click="selectedTier = 'premium'"
+                             :class="selectedTier === 'premium' ? 'border-[#D4AF37] bg-[#D4AF37]/5 ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13] hover:border-slate-700'"
+                             class="rounded-xl border p-4 text-left transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative group">
+                            <span class="absolute -top-2 right-3 bg-[#D4AF37] text-[#070A13] text-[8px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase">High Demand</span>
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Premium Residence</h4>
+                                    <div class="h-3 w-3 rounded-full border border-slate-600 flex items-center justify-center" :class="selectedTier === 'premium' && 'bg-[#D4AF37] border-transparent'">
+                                        <span x-show="selectedTier === 'premium'" class="text-[8px] text-[#070A13] font-bold">✓</span>
+                                    </div>
                                 </div>
-                                <div class="pt-2 border-t border-[#1E293B] mt-2">
-                                    <span class="text-[11px] font-mono text-[#D4AF37] font-semibold" x-text="formatConvertedValue(2400) + ' / mo'"></span>
-                                </div>
+                                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed" x-text="tierData.premium.description"></p>
                             </div>
-                        </button>
+                            <div class="pt-3 border-t border-[#1E293B] mt-2">
+                                <span class="text-[10px] text-slate-500 block uppercase font-medium">Base Cost per Unit</span>
+                                <span class="text-xs font-mono font-bold text-[#D4AF37]" x-text="formatConvertedValue(tierData.premium.basePrice)"></span>
+                            </div>
+                        </div>
 
                         <!-- Ultra Luxury Tier Card -->
-                        <button type="button" @click="tier = 'ultra'"
-                                :class="tier === 'ultra' ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13]'"
-                                class="rounded-xl border overflow-hidden text-left transition-all relative group flex flex-col justify-between h-64">
-                            <div class="relative h-28 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Ultra Asset Class" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition duration-500"/>
-                                <span class="absolute top-2 right-2 text-[9px] bg-amber-500/20 text-amber-400 font-mono px-1.5 py-0.5 rounded font-bold">Elite</span>
-                            </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#070A13]">
-                                <div>
-                                    <h4 class="text-xs font-bold text-white uppercase tracking-wide">Ultra Luxury Estate</h4>
-                                    <p class="text-[10px] text-slate-400 mt-1 leading-snug">Pinnacle ultra-luxury holdings featuring architectural bespoke concrete concepts.</p>
+                        <div @click="selectedTier = 'ultra'"
+                             :class="selectedTier === 'ultra' ? 'border-[#D4AF37] bg-[#D4AF37]/5 ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13] hover:border-slate-700'"
+                             class="rounded-xl border p-4 text-left transition-all duration-300 cursor-pointer flex flex-col justify-between h-48 relative group">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider">Ultra Luxury</h4>
+                                    <div class="h-3 w-3 rounded-full border border-slate-600 flex items-center justify-center" :class="selectedTier === 'ultra' && 'bg-[#D4AF37] border-transparent'">
+                                        <span x-show="selectedTier === 'ultra'" class="text-[8px] text-[#070A13] font-bold">✓</span>
+                                    </div>
                                 </div>
-                                <div class="pt-2 border-t border-[#1E293B] mt-2">
-                                    <span class="text-[11px] font-mono text-[#D4AF37] font-semibold" x-text="formatConvertedValue(4800) + ' / mo'"></span>
-                                </div>
+                                <p class="text-[11px] text-slate-400 mt-2 leading-relaxed" x-text="tierData.ultra.description"></p>
                             </div>
-                        </button>
+                            <div class="pt-3 border-t border-[#1E293B] mt-2">
+                                <span class="text-[10px] text-slate-500 block uppercase font-medium">Base Cost per Unit</span>
+                                <span class="text-xs font-mono font-bold text-[#D4AF37]" x-text="formatConvertedValue(tierData.ultra.basePrice)"></span>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
             </div>
 
-            <!-- SYNOPSIS BREAKDOWN & LEAD OVERLAY SIDEBAR -->
+            <!-- RIGHT MODULE: DETAILED BREAKDOWN & HIGH-INTENT CONVERSION CARD (1 COL) -->
             <div class="space-y-6">
-                <!-- Dynamic Ledger Statement Box -->
-                <div class="bg-[#141B2D] border border-[#1E293B] rounded-2xl p-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-[#D4AF37]/10 text-[#D4AF37] text-[9px] tracking-widest uppercase font-bold px-3 py-1 rounded-bl-lg">
+                
+                <!-- Component 3: Live Valuation Statement Ledger -->
+                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-[#D4AF37]/10 text-[#D4AF37] text-[8px] tracking-widest uppercase font-bold px-3 py-1 rounded-bl-lg font-mono">
                         Ledger Spec
                     </div>
-                    <h3 class="heading text-white font-bold text-base mb-1">Pipeline Evaluation</h3>
-                    <p class="text-xs text-slate-400 mb-4">Real-time asset accounting valuation parameters.</p>
+                    <h3 class="heading text-white font-bold text-base mb-1">Acquisition Statement</h3>
+                    <p class="text-[11px] text-slate-400 mb-4">Calculated allocation gross pricing summary.</p>
                     
-                    <div class="border-t border-[#1E293B] pt-4 space-y-2 text-xs">
-                        <div class="flex justify-between"><span class="text-slate-500">Asset Tier Selected</span><span class="text-white uppercase font-mono font-medium" x-text="tier"></span></div>
-                        <div class="flex justify-between"><span class="text-slate-500">Allocation Volume</span><span class="text-white font-mono" x-text="selectedUnits + (selectedUnits === 1 ? ' Block Unit' : ' Block Units')"></span></div>
-                        
-                        <div class="flex justify-between border-t border-[#1E293B]/60 pt-2">
-                            <span class="text-slate-400">Base Accumulation:</span>
-                            <span class="text-white font-mono" x-text="formatConvertedValue(calculateBaseTotal())"></span>
+                    <div class="border-t border-[#1E293B]/60 pt-4 space-y-2.5 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Class Selected:</span>
+                            <span class="text-white uppercase font-mono font-semibold" x-text="selectedTier"></span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-400">Estimated Portfolio Fees (5%):</span>
-                            <span class="text-slate-400 font-mono" x-text="formatConvertedValue(calculateTaxes())"></span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Volume Multiplexer:</span>
+                            <span class="text-white font-mono" x-text="unitsRequested + (unitsRequested === 1 ? ' Selected Unit' : ' Units Block')"></span>
                         </div>
                         
-                        <div class="border-t border-[#1E293B] pt-3 flex justify-between items-baseline mt-4">
-                            <span class="text-xs text-white font-bold">Total Estimated Value:</span>
-                            <span class="text-2xl font-black text-[#D4AF37] font-mono" x-text="formatConvertedValue(calculateGrandTotal())"></span>
+                        <div class="flex justify-between items-center border-t border-[#1E293B]/30 pt-2.5">
+                            <span class="text-slate-400">Aggregated Net Value:</span>
+                            <span class="text-white font-mono font-medium" x-text="formatConvertedValue(calculateBaseTotal())"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Portfolio Legal Transfer (1.5%):</span>
+                            <span class="text-slate-400 font-mono text-[11px]" x-text="formatConvertedValue(calculateCapitalAllocationFee())"></span>
+                        </div>
+                        
+                        <div class="border-t border-[#1E293B]/60 pt-3 flex justify-between items-baseline mt-4">
+                            <span class="text-xs text-white font-bold">Total Allocation Valuation:</span>
+                            <span class="text-2xl font-black text-[#D4AF37] font-mono tracking-tight" x-text="formatConvertedValue(calculateGrandTotal())"></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Commercial Pipeline Lead Ingestion -->
-                <div class="bg-[#141B2D] border border-[#1E293B] rounded-2xl p-6">
-                    <h3 class="heading text-white font-bold text-sm uppercase tracking-wider mb-3">Secure Asset Routing</h3>
+                <!-- Component 4: Commercial Lead Capture Ingestion -->
+                <div class="bg-[#101626] border border-[#1E293B]/60 rounded-2xl p-6 shadow-xl">
+                    <h3 class="heading text-white font-bold text-sm uppercase tracking-wider mb-4">Secure Unit Allocation</h3>
                     
-                    <form x-show="!isSubmitted" @submit.prevent="handlePropertySubmit()" class="space-y-3">
+                    <form x-show="!isSubmitted" @submit.prevent="submitUnitTracker()" class="space-y-3.5">
                         <div>
                             <label for="investor_name" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Principal Investor Name</label>
-                            <input type="text" id="investor_name" name="investor_name" required x-model="lead.name" placeholder="Johnathan Doe"
-                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37]" />
+                            <input type="text" id="investor_name" required x-model="lead.name" placeholder="E.g., Dr. Mukasa"
+                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] transition duration-200" />
                         </div>
 
                         <div>
-                            <label for="investor_phone" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Direct WhatsApp Line</label>
-                            <input type="tel" id="investor_phone" name="investor_phone" required x-model="lead.whatsapp" placeholder="+256 700 000000"
-                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37]" />
+                            <label for="investor_whatsapp" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active WhatsApp Line</label>
+                            <input type="tel" id="investor_whatsapp" required x-model="lead.whatsapp" placeholder="E.g., +256 700 000000"
+                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] transition duration-200" />
                         </div>
 
                         <div>
-                            <label for="investor_email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Secure Email (Optional)</label>
-                            <input type="email" id="investor_email" name="investor_email" x-model="lead.email" placeholder="principal@luxuryholding.com"
-                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37]" />
+                            <label for="investor_email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Secure Email Profile (Optional)</label>
+                            <input type="email" id="investor_email" x-model="lead.email" placeholder="investor@domain.com"
+                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] transition duration-200" />
                         </div>
 
                         <div>
-                            <label for="portfolio_directives" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bespoke Structural Directives (Optional)</label>
-                            <textarea id="portfolio_directives" name="portfolio_directives" x-model="lead.notes" rows="2" placeholder="Entity structural options, fast-track processing terms..."
-                                      class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] resize-none"></textarea>
+                            <label for="allocation_term" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Capital Deployment Schedule</label>
+                            <select id="allocation_term" x-model="lead.allocationTerm"
+                                    class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#D4AF37] cursor-pointer transition duration-200">
+                                <option value="immediate">Immediate Close (Within 14 Days)</option>
+                                <option value="quarter">Q1/Q2 Portfolio Capital Call</option>
+                                <option value="speculative">Financing / Payment Plan Structuring</option>
+                            </select>
                         </div>
 
-                        <p x-show="errorMessage" x-cloak x-text="errorMessage" class="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2"></p>
+                        <div>
+                            <label for="custom_directives" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bespoke Structural Directives (Optional)</label>
+                            <textarea id="custom_directives" x-model="lead.customDirectives" rows="2" placeholder="Entity structural requests, custom layout customizations..."
+                                      class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] resize-none transition duration-200"></textarea>
+                        </div>
 
+                        <!-- System Error Boundary -->
+                        <p x-show="errorMessage" x-cloak x-text="errorMessage" class="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2.5 font-medium"></p>
+
+                        <!-- High-Intent Direct CTA Button -->
                         <button type="submit" :disabled="loading"
-                                class="w-full bg-[#D4AF37] hover:bg-[#BFA32B] text-[#070A13] font-bold py-3 rounded-xl tracking-widest text-[10px] uppercase transition flex items-center justify-center gap-2">
-                            <span x-show="!loading">Lock Portfolio Specifications</span>
+                                class="w-full bg-[#D4AF37] hover:bg-[#BFA32B] disabled:opacity-50 text-[#070A13] font-bold py-3.5 rounded-xl tracking-widest text-[10px] uppercase transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:shadow-[0_4px_25px_rgba(212,175,55,0.25)]">
+                            <span x-show="!loading">Lock Dynamic Specs & Request Inventory File</span>
                             <span x-show="loading" class="flex items-center gap-2" x-cloak>
-                                <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                                 </svg>
-                                Syncing Asset Ledger...
+                                Syncing Commercial Ledger...
                             </span>
                         </button>
                     </form>
 
-                    <!-- Successful Verification Screen Overlay -->
-                    <div x-show="isSubmitted" class="text-center py-6" x-cloak>
-                        <div class="h-10 w-10 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3">✓</div>
-                        <h4 class="heading text-white font-bold text-sm">Specification Logged Securely</h4>
-                        <p class="text-xs text-slate-400 mt-2 px-1">
-                            Your allocation matrix file properties are synced. CB Luxury Homes asset management desk is receiving your record via the WhatsApp line routing loop.
+                    <!-- Verification Success State Card Screen Overlay -->
+                    <div x-show="isSubmitted" class="text-center py-8" x-cloak>
+                        <div class="h-12 w-12 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(16,185,129,0.1)]">✓</div>
+                        <h4 class="heading text-white font-bold text-sm uppercase tracking-wide">Acquisition Parameters Synced</h4>
+                        <p class="text-xs text-slate-400 mt-2 px-1 leading-relaxed">
+                            Your allocation specifications have been securely parsed. The CB Luxury Homes desk has been notified to generate your custom property inventory documentation package.
                         </p>
-                        <button @click="isSubmitted = false; lead = { name: '', email: '', whatsapp: '', notes: '' }; selectedUnits = 1;"
-                                class="mt-4 text-[10px] uppercase font-bold tracking-widest text-[#D4AF37] hover:text-white transition">
-                            Re-evaluate Asset Parameters
+                        <button @click="isSubmitted = false; lead = { name: '', whatsapp: '', email: '', allocationTerm: 'immediate', customDirectives: '' }; unitsRequested = 1;"
+                                class="mt-5 text-[10px] uppercase font-bold tracking-widest text-[#D4AF37] hover:text-white transition duration-200">
+                            Re-Calculate New Asset Parameters
                         </button>
                     </div>
                 </div>
