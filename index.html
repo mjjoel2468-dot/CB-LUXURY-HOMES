@@ -48,7 +48,7 @@
         }
     </style>
 </head>
-<body class="bg-[#0B0F19] text-[#E2E8F0] antialiased"
+<body class="bg-[#070A13] text-[#E2E8F0] antialiased"
       x-data="{
           selectedUnits: 1,
           tier: 'premium',
@@ -145,25 +145,25 @@
       }">
 
     <!-- NAVIGATION BAR -->
-    <nav class="sticky top-0 z-50 bg-[#0B0F19]/90 backdrop-blur-md border-b border-[#1E293B]">
+    <nav class="sticky top-0 z-50 bg-[#070A13]/90 backdrop-blur-md border-b border-[#1E293B]">
         <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-xl bg-[#38BDF8]/10 border border-[#38BDF8]/30 flex items-center justify-center flex-shrink-0 text-[#38BDF8]">
+                <div class="h-10 w-10 rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0 text-[#D4AF37]">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
                 <div>
                     <span class="heading text-white font-extrabold text-base tracking-wider block leading-tight">CB LUXURY HOMES</span>
-                    <span class="text-[#38BDF8] text-[9px] font-semibold tracking-[0.25em] uppercase block leading-none">Portfolio Tracker</span>
+                    <span class="text-[#D4AF37] text-[9px] font-semibold tracking-[0.25em] uppercase block leading-none">Portfolio Tracker</span>
                 </div>
             </div>
 
             <!-- Global Currency Conversion Selector -->
-            <div class="flex items-center gap-1 bg-[#1E293B] border border-[#334155] p-1 rounded-xl">
+            <div class="flex items-center gap-1 bg-[#141B2D] border border-[#1E293B] p-1 rounded-xl">
                 <template x-for="curr in ['USD', 'UGX', 'EUR', 'GBP']">
                     <button type="button" @click="activeCurrency = curr"
-                            :class="activeCurrency === curr ? 'bg-[#38BDF8] text-[#0B0F19] font-bold' : 'text-slate-400 hover:text-white'"
+                            :class="activeCurrency === curr ? 'bg-[#D4AF37] text-[#070A13] font-bold' : 'text-slate-400 hover:text-white'"
                             class="px-2.5 py-1 rounded-lg text-[10px] uppercase font-mono tracking-wider transition-all"
                             x-text="curr">
                     </button>
@@ -175,10 +175,10 @@
     <!-- BANNER HERO ARCHITECTURE -->
     <div class="relative bg-[#141B2D] overflow-hidden border-b border-[#1E293B] py-12 md:py-16">
         <div class="property-overlay"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/40 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#070A13] via-[#070A13]/40 to-transparent"></div>
         
         <div class="relative max-w-6xl mx-auto px-4 text-center">
-            <span class="text-[#38BDF8] text-xs font-bold uppercase tracking-[0.3em] bg-[#38BDF8]/10 border border-[#38BDF8]/20 px-3 py-1 rounded-full">Unit Availability Matrix</span>
+            <span class="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.3em] bg-[#D4AF37]/10 border border-[#D4AF37]/20 px-3 py-1 rounded-full">Unit Availability Matrix</span>
             <h1 class="heading text-3xl md:text-5xl font-black text-white mt-4 max-w-3xl mx-auto leading-tight">
                 Evaluate Real Estate Unit Block Allocation
             </h1>
@@ -198,10 +198,10 @@
                 <div class="bg-[#141B2D] border border-[#1E293B] rounded-2xl p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="heading font-bold text-slate-300 text-sm uppercase tracking-wider">1. Select Portfolio Unit Volume</h3>
-                        <span class="text-xl font-mono font-bold text-[#38BDF8]" x-text="selectedUnits + ' ' + (selectedUnits === 1 ? 'Unit' : 'Units')"></span>
+                        <span class="text-xl font-mono font-bold text-[#D4AF37]" x-text="selectedUnits + ' ' + (selectedUnits === 1 ? 'Unit' : 'Units')"></span>
                     </div>
                     <input type="range" min="1" max="12" x-model="selectedUnits" 
-                           class="w-full accent-[#38BDF8] bg-[#0B0F19] h-2 rounded-lg cursor-pointer" />
+                           class="w-full accent-[#D4AF37] bg-[#070A13] h-2 rounded-lg cursor-pointer" />
                     <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-mono">
                         <span>1 ASSET UNIT</span>
                         <span>6 UNITS BLOCK</span>
@@ -216,57 +216,57 @@
                         
                         <!-- Executive Tier Card -->
                         <button type="button" @click="tier = 'executive'"
-                                :class="tier === 'executive' ? 'border-[#38BDF8] ring-1 ring-[#38BDF8]' : 'border-[#1E293B] bg-[#0B0F19]'"
+                                :class="tier === 'executive' ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13]'"
                                 class="rounded-xl border overflow-hidden text-left transition-all relative group flex flex-col justify-between h-64">
                             <div class="relative h-28 overflow-hidden">
                                 <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80" alt="Executive Asset Class" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition duration-500"/>
-                                <span class="absolute top-2 right-2 text-[9px] bg-[#0B0F19]/80 text-slate-300 font-mono px-1.5 py-0.5 rounded">Class A</span>
+                                <span class="absolute top-2 right-2 text-[9px] bg-[#070A13]/80 text-slate-300 font-mono px-1.5 py-0.5 rounded">Class A</span>
                             </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#0B0F19]">
+                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#070A13]">
                                 <div>
                                     <h4 class="text-xs font-bold text-white uppercase tracking-wide">Executive Tier</h4>
                                     <p class="text-[10px] text-slate-400 mt-1 leading-snug">Metropolitan spaces engineered for premium recurring cashflow yields.</p>
                                 </div>
                                 <div class="pt-2 border-t border-[#1E293B] mt-2">
-                                    <span class="text-[11px] font-mono text-[#38BDF8] font-semibold" x-text="formatConvertedValue(1200) + ' / mo'"></span>
+                                    <span class="text-[11px] font-mono text-[#D4AF37] font-semibold" x-text="formatConvertedValue(1200) + ' / mo'"></span>
                                 </div>
                             </div>
                         </button>
 
                         <!-- Premium Tier Card -->
                         <button type="button" @click="tier = 'premium'"
-                                :class="tier === 'premium' ? 'border-[#38BDF8] ring-1 ring-[#38BDF8]' : 'border-[#1E293B] bg-[#0B0F19]'"
+                                :class="tier === 'premium' ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13]'"
                                 class="rounded-xl border overflow-hidden text-left transition-all relative group flex flex-col justify-between h-64">
                             <div class="relative h-28 overflow-hidden">
                                 <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80" alt="Premium Asset Class" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition duration-500"/>
-                                <span class="absolute top-2 right-2 text-[9px] bg-[#38BDF8]/20 text-[#38BDF8] font-mono px-1.5 py-0.5 rounded font-bold">Most Selected</span>
+                                <span class="absolute top-2 right-2 text-[9px] bg-[#D4AF37]/20 text-[#D4AF37] font-mono px-1.5 py-0.5 rounded font-bold">Most Selected</span>
                             </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#0B0F19]">
+                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#070A13]">
                                 <div>
                                     <h4 class="text-xs font-bold text-white uppercase tracking-wide">Premium Residence</h4>
                                     <p class="text-[10px] text-slate-400 mt-1 leading-snug">Exclusive suburban estates built with custom high-end masonry specifications.</p>
                                 </div>
                                 <div class="pt-2 border-t border-[#1E293B] mt-2">
-                                    <span class="text-[11px] font-mono text-[#38BDF8] font-semibold" x-text="formatConvertedValue(2400) + ' / mo'"></span>
+                                    <span class="text-[11px] font-mono text-[#D4AF37] font-semibold" x-text="formatConvertedValue(2400) + ' / mo'"></span>
                                 </div>
                             </div>
                         </button>
 
                         <!-- Ultra Luxury Tier Card -->
                         <button type="button" @click="tier = 'ultra'"
-                                :class="tier === 'ultra' ? 'border-[#38BDF8] ring-1 ring-[#38BDF8]' : 'border-[#1E293B] bg-[#0B0F19]'"
+                                :class="tier === 'ultra' ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]' : 'border-[#1E293B] bg-[#070A13]'"
                                 class="rounded-xl border overflow-hidden text-left transition-all relative group flex flex-col justify-between h-64">
                             <div class="relative h-28 overflow-hidden">
                                 <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Ultra Asset Class" class="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition duration-500"/>
                                 <span class="absolute top-2 right-2 text-[9px] bg-amber-500/20 text-amber-400 font-mono px-1.5 py-0.5 rounded font-bold">Elite</span>
                             </div>
-                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#0B0F19]">
+                            <div class="p-4 flex-grow flex flex-col justify-between bg-[#070A13]">
                                 <div>
                                     <h4 class="text-xs font-bold text-white uppercase tracking-wide">Ultra Luxury Estate</h4>
                                     <p class="text-[10px] text-slate-400 mt-1 leading-snug">Pinnacle ultra-luxury holdings featuring architectural bespoke concrete concepts.</p>
                                 </div>
                                 <div class="pt-2 border-t border-[#1E293B] mt-2">
-                                    <span class="text-[11px] font-mono text-[#38BDF8] font-semibold" x-text="formatConvertedValue(4800) + ' / mo'"></span>
+                                    <span class="text-[11px] font-mono text-[#D4AF37] font-semibold" x-text="formatConvertedValue(4800) + ' / mo'"></span>
                                 </div>
                             </div>
                         </button>
@@ -279,7 +279,7 @@
             <div class="space-y-6">
                 <!-- Dynamic Ledger Statement Box -->
                 <div class="bg-[#141B2D] border border-[#1E293B] rounded-2xl p-6 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-[#38BDF8]/10 text-[#38BDF8] text-[9px] tracking-widest uppercase font-bold px-3 py-1 rounded-bl-lg">
+                    <div class="absolute top-0 right-0 bg-[#D4AF37]/10 text-[#D4AF37] text-[9px] tracking-widest uppercase font-bold px-3 py-1 rounded-bl-lg">
                         Ledger Spec
                     </div>
                     <h3 class="heading text-white font-bold text-base mb-1">Pipeline Evaluation</h3>
@@ -300,7 +300,7 @@
                         
                         <div class="border-t border-[#1E293B] pt-3 flex justify-between items-baseline mt-4">
                             <span class="text-xs text-white font-bold">Total Estimated Value:</span>
-                            <span class="text-2xl font-black text-[#38BDF8] font-mono" x-text="formatConvertedValue(calculateGrandTotal())"></span>
+                            <span class="text-2xl font-black text-[#D4AF37] font-mono" x-text="formatConvertedValue(calculateGrandTotal())"></span>
                         </div>
                     </div>
                 </div>
@@ -313,31 +313,31 @@
                         <div>
                             <label for="investor_name" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Principal Investor Name</label>
                             <input type="text" id="investor_name" name="investor_name" required x-model="lead.name" placeholder="Johnathan Doe"
-                                   class="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#38BDF8]" />
+                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37]" />
                         </div>
 
                         <div>
                             <label for="investor_phone" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Direct WhatsApp Line</label>
                             <input type="tel" id="investor_phone" name="investor_phone" required x-model="lead.whatsapp" placeholder="+256 700 000000"
-                                   class="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#38BDF8]" />
+                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37]" />
                         </div>
 
                         <div>
                             <label for="investor_email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Secure Email (Optional)</label>
                             <input type="email" id="investor_email" name="investor_email" x-model="lead.email" placeholder="principal@luxuryholding.com"
-                                   class="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#38BDF8]" />
+                                   class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37]" />
                         </div>
 
                         <div>
                             <label for="portfolio_directives" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Bespoke Structural Directives (Optional)</label>
                             <textarea id="portfolio_directives" name="portfolio_directives" x-model="lead.notes" rows="2" placeholder="Entity structural options, fast-track processing terms..."
-                                      class="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#38BDF8] resize-none"></textarea>
+                                      class="w-full bg-[#070A13] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-slate-700 focus:outline-none focus:border-[#D4AF37] resize-none"></textarea>
                         </div>
 
                         <p x-show="errorMessage" x-cloak x-text="errorMessage" class="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg p-2"></p>
 
                         <button type="submit" :disabled="loading"
-                                class="w-full bg-[#38BDF8] hover:bg-[#0EA5E9] text-[#0B0F19] font-bold py-3 rounded-xl tracking-widest text-[10px] uppercase transition flex items-center justify-center gap-2">
+                                class="w-full bg-[#D4AF37] hover:bg-[#BFA32B] text-[#070A13] font-bold py-3 rounded-xl tracking-widest text-[10px] uppercase transition flex items-center justify-center gap-2">
                             <span x-show="!loading">Lock Portfolio Specifications</span>
                             <span x-show="loading" class="flex items-center gap-2" x-cloak>
                                 <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
@@ -357,7 +357,7 @@
                             Your allocation matrix file properties are synced. CB Luxury Homes asset management desk is receiving your record via the WhatsApp line routing loop.
                         </p>
                         <button @click="isSubmitted = false; lead = { name: '', email: '', whatsapp: '', notes: '' }; selectedUnits = 1;"
-                                class="mt-4 text-[10px] uppercase font-bold tracking-widest text-[#38BDF8] hover:text-white transition">
+                                class="mt-4 text-[10px] uppercase font-bold tracking-widest text-[#D4AF37] hover:text-white transition">
                             Re-evaluate Asset Parameters
                         </button>
                     </div>
